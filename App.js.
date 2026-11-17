@@ -1,0 +1,211 @@
+
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  Alert,
+  ScrollView
+} from 'react-native';
+
+export default function App() {
+  const [produto, setProduto] = useState('');
+  const [quantidadeInicial, setQuantidadeInicial] = useState('');
+  const [movimentacao, setMovimentacao] = useState('');
+  const [estoque, setEstoque] = useState(null);
+
+  function iniciarEstoque() {
+    if (produto.trim() === '' || quantidadeInicial.trim() === '') {
+      Alert.alert('Atenção', 'Preencha o nome e a quantidade inicial.');
+      return;
+    }
+
+    const quantidade = Number(quantidadeInicial);
+
+    if (!Number.isInteger(quantidade) || quantidade < 0) {
+      Alert.alert('Erro', 'Informe uma quantidade inicial válida.');
+      return;
+    }
+
+    setEstoque(quantidade);
+    Alert.alert('Sucesso', 'Estoque cadastrado!');
+  }
+
+  function adicionarEstoque() {
+    if (estoque === null) {
+      Alert.alert('Atenção', 'Cadastre o estoque primeiro.');
+      return;
+    }
+
+    const valor = Number(movimentacao);
+
+    if (movimentacao.trim() === '' || !Number.isInteger(valor) || valor <= 0) {
+      Alert.alert('Erro', 'Informe uma quantidade válida para adicionar.');
+      return;
+    }
+
+    setEstoque(estoque + valor);
+    setMovimentacao('');
+    Alert.alert('Sucesso', 'Produtos adicionados ao estoque!');
+  }
+
+  function retirarEstoque() {
+    if (estoque === null) {
+      Alert.alert('Atenção', 'Cadastre o estoque primeiro.');
+      return;
+    }
+
+    const valor = Number(movimentacao);
+
+    if (movimentacao.trim() === '' || !Number.isInteger(valor) || valor <= 0) {
+      Alert.alert('Erro', 'Informe uma quantidade válida para retirar.');
+      return;
+    }
+
+    if (valor > estoque) {
+      Alert.alert('Estoque insuficiente', 'Não é possível retirar mais produtos do que há disponível.');
+      return;
+    }
+
+    const novoEstoque = estoque - valor;
+    setEstoque(novoEstoque);
+    setMovimentacao('');
+
+    if (novoEstoque < 5) {
+      Alert.alert('Atenção: estoque baixo!', 'Restam menos de 5 unidades do produto.');
+    } else {
+      Alert.alert('Sucesso', 'Produtos retirados do estoque!');
+    }
+  }
+
+  return (
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.titulo}>Controle de Estoque</Text>
+
+      <Text style={styles.label}>Nome do produto:</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Digite o nome do produto"
+        value={produto}
+        onChangeText={setProduto}
+      />
+
+      <Text style={styles.label}>Quantidade inicial:</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Digite a quantidade inicial"
+        keyboardType="numeric"
+        value={quantidadeInicial}
+        onChangeText={setQuantidadeInicial}
+      />
+
+      <Button
+        title="Cadastrar estoque"
+        onPress={iniciarEstoque}
+      />
+
+      <View style={styles.espaco} />
+
+      <Text style={styles.label}>Quantidade para movimentar:</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Digite a quantidade"
+        keyboardType="numeric"
+        value={movimentacao}
+        onChangeText={setMovimentacao}
+      />
+
+      <View style={styles.botao}>
+        <Button
+          title="Adicionar estoque"
+          onPress={adicionarEstoque}
+          color="#16803c"
+        />
+      </View>
+
+      <View style={styles.botao}>
+        <Button
+          title="Retirar estoque"
+          onPress={retirarEstoque}
+          color="#c0392b"
+        />
+      </View>
+
+      {estoque !== null && (
+        <View style={styles.resultado}>
+          <Text style={styles.subtitulo}>Produto: {produto}</Text>
+          <Text style={styles.quantidade}>
+            Estoque disponível: {estoque} unidades
+          </Text>
+
+          {estoque < 5 && (
+            <Text style={styles.alerta}>
+              Atenção! Estoque abaixo de 5 unidades!
+            </Text>
+          )}
+        </View>
+      )}
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flexGrow: 1,
+    padding: 25,
+    justifyContent: 'center',
+    backgroundColor: '#f2f5f2'
+  },
+  titulo: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 30,
+    color: '#185c37'
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    marginTop: 12
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#aaa',
+    backgroundColor: '#fff',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 15
+  },
+  espaco: {
+    height: 20
+  },
+  botao: {
+    marginTop: 12
+  },
+  resultado: {
+    marginTop: 30,
+    padding: 18,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    alignItems: 'center'
+  },
+  subtitulo: {
+    fontSize: 18,
+    fontWeight: 'bold'
+  },
+  quantidade: {
+    fontSize: 20,
+    marginTop: 12,
+    color: '#185c37',
+    fontWeight: 'bold'
+  },
+  alerta: {
+    color: '#c0392b',
+    fontWeight: 'bold',
+    marginTop: 12,
+    textAlign: 'center'
+  }
+});
